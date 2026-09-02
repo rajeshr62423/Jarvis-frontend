@@ -2406,7 +2406,7 @@ body {
       order: -1;
       min-height: 330px;
     }
-    .arc-reactor {
+    .reactor-core-panel .arc-reactor {
       width: min(92vw, 360px);
     }
     .reactor-lower-grid,

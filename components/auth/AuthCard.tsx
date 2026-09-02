@@ -11,7 +11,7 @@ export function AuthCard({
   children: ReactNode;
 }) {
   return (
-    <div className="hud-panel scanline flex flex-col gap-6 p-8">
+    <div className="hud-panel scanline flex flex-col gap-6 p-6 sm:p-8">
       <div className="flex flex-col items-center gap-3 text-center">
         <div className="w-20 sm:w-24">
           <ArcReactorCore state="NORMAL" />
