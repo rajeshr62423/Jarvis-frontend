@@ -5,6 +5,7 @@ export type UpdateSettingsInput = {
   voice?: string;
   appearance?: string;
   aiBehavior?: string;
+  assistantIdentity?: string;
   notifications?: Record<string, unknown>;
   language?: string;
   timezone?: string;

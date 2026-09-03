@@ -133,7 +133,8 @@ function Dialog({
 }) {
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: "color-mix(in srgb, var(--jarvis-bg) 70%, transparent)" }}
       onMouseDown={onClose}
     >
       <section

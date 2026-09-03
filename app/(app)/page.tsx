@@ -20,6 +20,7 @@ import { ParticleField } from "@/components/hud/ParticleField";
 import { Meter } from "@/components/hud/Meter";
 import { CircularMeter } from "@/components/hud/CircularMeter";
 import { useAuth } from "@/hooks/useAuth";
+import { useAssistantIdentity } from "@/hooks/useAssistantIdentity";
 import { useNotifications } from "@/hooks/useNotifications";
 import { useJarvisState } from "@/hooks/useJarvisState";
 import { useClock } from "@/hooks/useClock";
@@ -75,6 +76,7 @@ const QUICK_ACTIONS = [
 export default function HomePage() {
   const router = useRouter();
   const { user } = useAuth();
+  const identity = useAssistantIdentity();
   const { connection } = useNotifications();
   const { state } = useJarvisState();
 
@@ -223,7 +225,7 @@ export default function HomePage() {
             </span>
             <span className="flex-1 text-sm text-jarvis-muted">
               Tap or say{" "}
-              <span className="text-jarvis-fg">&ldquo;Hey JARVIS&rdquo;</span>
+              <span className="text-jarvis-fg">&ldquo;Hey {identity}&rdquo;</span>
             </span>
           </button>
 

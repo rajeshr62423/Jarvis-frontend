@@ -7,15 +7,8 @@ import { VoiceControl } from "@/components/command/VoiceControl";
 import { JarvisCore } from "@/components/core/JarvisCore";
 import { useJarvisState } from "@/hooks/useJarvisState";
 import { useVoiceInput } from "@/hooks/useVoiceInput";
+import { useAssistantIdentity } from "@/hooks/useAssistantIdentity";
 import type { JarvisState } from "@/lib/types";
-
-const STATE_LABEL: Partial<Record<JarvisState, string>> = {
-  listening: "LISTENING...",
-  thinking: "ANALYZING...",
-  speaking: "JARVIS SPEAKING...",
-  executing: "EXECUTING...",
-  error: "COMMAND ERROR",
-};
 
 export function CommandBar({ onSubmit }: { onSubmit: (text: string) => void }) {
   const [value, setValue] = useState("");
@@ -24,12 +17,22 @@ export function CommandBar({ onSubmit }: { onSubmit: (text: string) => void }) {
     onSubmit(transcript);
   });
   const inputRef = useRef<HTMLInputElement>(null);
+  const identity = useAssistantIdentity();
+
+  const STATE_LABEL: Partial<Record<JarvisState, string>> = {
+    listening: "LISTENING...",
+    thinking: "ANALYZING...",
+    speaking: `${identity} SPEAKING...`,
+    executing: "EXECUTING...",
+    error: "COMMAND ERROR",
+  };
 
   const busy =
     state === "thinking" || state === "speaking" || state === "executing";
   const statusLabel = STATE_LABEL[state];
 
-  // Re-focus the command box once JARVIS is free to take the next command,
+  // Re-focus the command box once the assistant is free to take the next
+  // command,
   // instead of leaving it to the browser's inconsistent disabled->enabled
   // focus-restore behavior.
   useEffect(() => {
@@ -78,7 +81,7 @@ export function CommandBar({ onSubmit }: { onSubmit: (text: string) => void }) {
                 <i /> SYSTEM ACTIVE
               </span>
               <span className="hud-display inline-voice-title">
-                JARVIS LISTENING
+                {identity} LISTENING
               </span>
             </div>
             <div className="inline-voice-reactor">
@@ -116,12 +119,12 @@ export function CommandBar({ onSubmit }: { onSubmit: (text: string) => void }) {
             value={state === "listening" ? interim || value : value}
             onChange={(e) => setValue(e.target.value)}
             disabled={state === "listening" || busy}
-            placeholder="Ask JARVIS anything..."
+            placeholder={`Ask ${identity} anything...`}
             className="hud-input hud-command-input hud-mono w-full text-sm"
           />
           <div className="command-input-status hud-label" aria-live="polite">
             <span className={`command-status-dot ${busy ? "is-busy" : ""}`} />
-            {busy ? (statusLabel ?? "PROCESSING") : "JARVIS READY"}
+            {busy ? (statusLabel ?? "PROCESSING") : `${identity} READY`}
           </div>
         </div>
         {state === "listening" && (
@@ -146,7 +149,7 @@ export function CommandBar({ onSubmit }: { onSubmit: (text: string) => void }) {
           <button
             type="submit"
             disabled={busy || !value.trim()}
-            aria-label={busy ? "JARVIS is processing" : "Send command"}
+            aria-label={busy ? `${identity} is processing` : "Send command"}
             className="command-send-button flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-jarvis-border-strong text-jarvis-cyan transition-colors disabled:cursor-not-allowed disabled:opacity-35"
           >
             {busy ? (

@@ -18,7 +18,9 @@ export function ToggleSwitch({
         borderColor: checked
           ? "var(--jarvis-ok)"
           : "var(--jarvis-border-strong)",
-        background: checked ? "rgba(0,255,163,0.15)" : "transparent",
+        background: checked
+          ? "color-mix(in srgb, var(--jarvis-ok) 15%, transparent)"
+          : "transparent",
       }}
     >
       <span

@@ -34,9 +34,13 @@ function getSnapshot(): Particle[] {
 }
 
 // Empty on the server (and on the very first pre-hydration client render) so
-// random positions never cause a server/client markup mismatch.
+// random positions never cause a server/client markup mismatch. Must return
+// the same array reference every call, or useSyncExternalStore treats each
+// render as a fresh update and loops.
+const EMPTY_PARTICLES: Particle[] = [];
+
 function getServerSnapshot(): Particle[] {
-  return [];
+  return EMPTY_PARTICLES;
 }
 
 /** Ambient floating-dust dots behind a hero section. */

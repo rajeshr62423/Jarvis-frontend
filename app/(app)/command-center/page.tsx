@@ -28,7 +28,7 @@ export default function CommandCenterPage() {
   };
 
   return (
-    <div className="hud-panel flex h-[calc(100vh-6.5rem)] flex-col overflow-hidden">
+    <div className="hud-panel flex h-[calc(100dvh-6.5rem)] flex-col overflow-hidden">
       <div className="flex shrink-0 items-center justify-between border-b border-jarvis-border px-4 py-2">
         <span className="hud-label">COMMAND CENTER</span>
         <div className="flex items-center gap-4">

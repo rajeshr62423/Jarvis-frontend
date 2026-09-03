@@ -10,8 +10,10 @@ import {
 import { HudPanel } from "@/components/hud/HudPanel";
 import { AuthField } from "@/components/auth/AuthField";
 import { ToggleSwitch } from "@/components/hud/ToggleSwitch";
+import { AppearanceSelect, normalizeAppearance } from "@/components/settings/AppearanceSelect";
 import { getTimezoneOptions } from "@/lib/timezones";
 import { resolveAvatarUrl } from "@/lib/avatar";
+import { ASSISTANT_IDENTITIES, DEFAULT_ASSISTANT_IDENTITY } from "@/lib/assistantIdentities";
 import type { Profile, Settings } from "@/lib/types";
 
 const NOTIFICATION_TOGGLES: { key: string; label: string }[] = [
@@ -49,8 +51,11 @@ export function SettingsForm({
   const [avatarError, setAvatarError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [voice, setVoice] = useState(settings.voice);
-  const [appearance, setAppearance] = useState(settings.appearance);
+  const [appearance, setAppearance] = useState(normalizeAppearance(settings.appearance));
   const [aiBehavior, setAiBehavior] = useState(settings.aiBehavior);
+  const [assistantIdentity, setAssistantIdentity] = useState(
+    settings.assistantIdentity || DEFAULT_ASSISTANT_IDENTITY,
+  );
   const [timezone, setTimezone] = useState(settings.timezone);
   const timezoneOptions = useMemo(() => {
     const options = getTimezoneOptions();
@@ -98,6 +103,7 @@ export function SettingsForm({
       voice,
       appearance,
       aiBehavior,
+      assistantIdentity,
       timezone,
       notifications: notificationPrefs,
     }).unwrap();
@@ -106,9 +112,9 @@ export function SettingsForm({
   };
 
   return (
-    <div className="settings-dashboard flex h-full flex-col gap-4 overflow-y-auto">
+    <div className="settings-dashboard flex h-full flex-col gap-5 overflow-y-auto">
       <div className="settings-heading flex items-center justify-between">
-        <span className="hud-label">OPERATOR CONFIGURATION</span>
+        <span className="hud-label text-glow text-jarvis-cyan">OPERATOR CONFIGURATION</span>
         {savedFlash && (
           <span className="hud-label text-jarvis-ok">{savedFlash}</span>
         )}
@@ -116,7 +122,7 @@ export function SettingsForm({
 
       <HudPanel
         title="PROFILE"
-        className="settings-panel settings-profile-panel p-4 sm:p-5"
+        className="settings-panel settings-profile-panel p-5 sm:p-7"
       >
         <form onSubmit={handleProfileSubmit} className="settings-profile-form">
           <div className="settings-profile-column">
@@ -148,7 +154,7 @@ export function SettingsForm({
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 aria-label="Change avatar"
-                className="group relative flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-full border border-jarvis-border-strong bg-jarvis-bg-2 text-jarvis-muted transition-colors hover:border-jarvis-cyan"
+                className="settings-avatar-orb group relative flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-full border border-jarvis-border-strong bg-jarvis-bg-2 text-jarvis-muted transition-colors hover:border-jarvis-cyan"
               >
                 {resolveAvatarUrl(avatarUrl) ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -158,10 +164,10 @@ export function SettingsForm({
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <User className="h-6 w-6" />
+                  <User className="h-9 w-9" />
                 )}
                 <span className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
-                  <Camera className="h-5 w-5 text-jarvis-cyan" />
+                  <Camera className="h-7 w-7 text-jarvis-cyan" />
                 </span>
               </button>
               <div className="flex flex-col gap-1">
@@ -196,7 +202,7 @@ export function SettingsForm({
 
       <HudPanel
         title="SYSTEM PREFERENCES"
-        className="settings-panel settings-preferences-panel p-4 sm:p-5"
+        className="settings-panel settings-preferences-panel p-5 sm:p-7"
       >
         <form
           onSubmit={handleSettingsSubmit}
@@ -226,6 +232,20 @@ export function SettingsForm({
                 <option value="casual">CASUAL</option>
               </select>
             </label>
+            <label className="flex flex-col gap-1.5">
+              <span className="hud-label">ASSISTANT IDENTITY</span>
+              <select
+                value={assistantIdentity}
+                onChange={(e) => setAssistantIdentity(e.target.value)}
+                className="hud-select hud-mono"
+              >
+                {ASSISTANT_IDENTITIES.map(({ value, description }) => (
+                  <option key={value} value={value}>
+                    {value} — {description}
+                  </option>
+                ))}
+              </select>
+            </label>
             <div className="settings-notifications flex flex-col gap-3">
               <span className="hud-label">NOTIFICATIONS</span>
               {NOTIFICATION_TOGGLES.map(({ key, label }) => (
@@ -250,15 +270,8 @@ export function SettingsForm({
           </div>
           <div className="settings-preference-column">
             <label className="flex flex-col gap-1.5">
-              <span className="hud-label">APPEARANCE</span>
-              <select
-                value={appearance}
-                onChange={(e) => setAppearance(e.target.value)}
-                className="hud-select hud-mono"
-              >
-                <option value="dark">DARK</option>
-                <option value="light">LIGHT</option>
-              </select>
+              <span className="hud-label">APPEARANCE PROTOCOL</span>
+              <AppearanceSelect value={appearance} onChange={setAppearance} />
             </label>
             <label className="flex flex-col gap-1.5">
               <span className="hud-label">TIMEZONE</span>
@@ -277,7 +290,7 @@ export function SettingsForm({
             <div className="settings-signal-note">
               <span className="hud-label text-jarvis-cyan">SYSTEM SIGNAL</span>
               <span className="text-xs leading-relaxed text-jarvis-muted">
-                Preferences synchronize across every active JARVIS terminal.
+                Preferences synchronize across every active {assistantIdentity} terminal.
               </span>
             </div>
           </div>

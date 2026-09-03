@@ -16,6 +16,17 @@
   --jarvis-ok: #34d399;
   --jarvis-border: rgba(34, 211, 238, 0.15);
   --jarvis-border-strong: rgba(34, 211, 238, 0.32);
+  /* Content height of the mobile bottom nav's icon+label row, excluding the
+     iOS safe-area inset — kept as one source of truth so the scrollable
+     content's bottom padding always matches the nav's real footprint. */
+  --mobile-nav-h: 4.5rem;
+  /* Tints/shades derived from the active protocol's accent, so decorative
+     HUD/reactor effects (previously hardcoded to literal cyan hex values)
+     re-skin along with everything else instead of staying frozen on ARC. */
+  --jarvis-accent-soft: color-mix(in srgb, var(--jarvis-cyan) 55%, white);
+  --jarvis-accent-softer: color-mix(in srgb, var(--jarvis-cyan) 30%, white);
+  --jarvis-accent-hot: color-mix(in srgb, var(--jarvis-cyan) 85%, white);
+  --jarvis-accent-deep: color-mix(in srgb, var(--jarvis-cyan) 55%, black);
 }
 
 :root[data-theme="light"] {
@@ -34,6 +45,82 @@
   --jarvis-ok: #047857;
   --jarvis-border: rgba(8, 145, 178, 0.22);
   --jarvis-border-strong: rgba(8, 145, 178, 0.46);
+}
+
+/* Appearance protocols — swap the accent/background variable set that every
+   HUD surface already reads from, so a new protocol re-skins the whole app
+   without any component needing per-theme logic. ARC is the baseline :root
+   palette above; the other four override it. */
+:root[data-theme="verdant"] {
+  --jarvis-bg: #020f0a;
+  --jarvis-bg-2: #071d14;
+  --jarvis-panel: #0a2419;
+  --jarvis-elevated: #0d2e1f;
+  --jarvis-cyan: #34d399;
+  --jarvis-blue: #10b981;
+  --jarvis-glow: rgba(52, 211, 153, 0.25);
+  --jarvis-fg: #e6faf0;
+  --jarvis-muted: #8fb5a3;
+  --jarvis-muted-2: #5e8070;
+  --jarvis-warn: #f59e0b;
+  --jarvis-crit: #fb7185;
+  --jarvis-ok: #4ade80;
+  --jarvis-border: rgba(52, 211, 153, 0.15);
+  --jarvis-border-strong: rgba(52, 211, 153, 0.32);
+}
+
+:root[data-theme="overdrive"] {
+  --jarvis-bg: #120404;
+  --jarvis-bg-2: #1d0808;
+  --jarvis-panel: #240a0a;
+  --jarvis-elevated: #2e0d0d;
+  --jarvis-cyan: #f43f5e;
+  --jarvis-blue: #dc2626;
+  --jarvis-glow: rgba(244, 63, 94, 0.25);
+  --jarvis-fg: #fdeaea;
+  --jarvis-muted: #c79797;
+  --jarvis-muted-2: #8a6262;
+  --jarvis-warn: #fb923c;
+  --jarvis-crit: #ef4444;
+  --jarvis-ok: #34d399;
+  --jarvis-border: rgba(244, 63, 94, 0.18);
+  --jarvis-border-strong: rgba(244, 63, 94, 0.38);
+}
+
+:root[data-theme="pulse"] {
+  --jarvis-bg: #0a0414;
+  --jarvis-bg-2: #140a24;
+  --jarvis-panel: #1a0e2e;
+  --jarvis-elevated: #221238;
+  --jarvis-cyan: #22d3ee;
+  --jarvis-blue: #a855f7;
+  --jarvis-glow: rgba(168, 85, 247, 0.28);
+  --jarvis-fg: #f1e9fb;
+  --jarvis-muted: #a89bc7;
+  --jarvis-muted-2: #6f6390;
+  --jarvis-warn: #f59e0b;
+  --jarvis-crit: #fb7185;
+  --jarvis-ok: #34d399;
+  --jarvis-border: rgba(168, 85, 247, 0.2);
+  --jarvis-border-strong: rgba(217, 70, 239, 0.4);
+}
+
+:root[data-theme="stealth"] {
+  --jarvis-bg: #05070a;
+  --jarvis-bg-2: #0a0d12;
+  --jarvis-panel: #0e1217;
+  --jarvis-elevated: #12161c;
+  --jarvis-cyan: #9ca3af;
+  --jarvis-blue: #6b7280;
+  --jarvis-glow: rgba(156, 163, 175, 0.15);
+  --jarvis-fg: #e2e4e7;
+  --jarvis-muted: #7c828a;
+  --jarvis-muted-2: #4b5058;
+  --jarvis-warn: #d97706;
+  --jarvis-crit: #dc2626;
+  --jarvis-ok: #22c55e;
+  --jarvis-border: rgba(156, 163, 175, 0.14);
+  --jarvis-border-strong: rgba(156, 163, 175, 0.3);
 }
 
 @theme inline {
@@ -72,12 +159,12 @@ body {
   background-image:
     radial-gradient(
       ellipse 80% 60% at 50% -10%,
-      rgba(34, 211, 238, 0.07),
+      color-mix(in srgb, var(--jarvis-cyan) 7%, transparent),
       transparent
     ),
     radial-gradient(
       ellipse 60% 50% at 100% 100%,
-      rgba(6, 182, 212, 0.05),
+      color-mix(in srgb, var(--jarvis-blue) 5%, transparent),
       transparent
     );
   background-attachment: fixed;
@@ -90,6 +177,7 @@ body {
   border: 1px solid var(--jarvis-border);
   border-radius: 0.375rem;
   background: color-mix(in srgb, var(--jarvis-bg-2) 82%, transparent);
+  backdrop-filter: blur(6px);
   padding: 0.65rem 0.75rem;
   color: var(--jarvis-fg);
   outline: none;
@@ -97,6 +185,20 @@ body {
     border-color 160ms ease,
     background-color 160ms ease,
     box-shadow 160ms ease;
+}
+
+/* The open <option> list is a native OS/browser popup — the page can't
+   style it directly. color-scheme tells the browser to draw that popup
+   (and its hover/selection highlight) using its dark-mode palette instead
+   of the default white-background/bright-blue-highlight combo, and the
+   option background/color rules give the idle rows a matching dark fill
+   in browsers that honor them (Chromium/Firefox). */
+.hud-select {
+  color-scheme: dark;
+}
+.hud-select option {
+  background-color: var(--jarvis-bg-2);
+  color: var(--jarvis-fg);
 }
 
 .hud-input:hover,
@@ -122,6 +224,17 @@ body {
   opacity: 0.55;
 }
 
+/* .hud-input lives outside any Tailwind @layer, so it always wins over
+   utility classes like pl-10/pr-11 in the cascade regardless of source
+   order — these dedicated classes share its specificity bucket instead. */
+.hud-input.hud-input--has-icon {
+  padding-left: 2.75rem;
+}
+
+.hud-input.hud-input--has-toggle {
+  padding-right: 2.75rem;
+}
+
 .hud-input:-webkit-autofill {
   -webkit-text-fill-color: var(--jarvis-fg);
   box-shadow: 0 0 0 1000px var(--jarvis-bg-2) inset;
@@ -139,6 +252,323 @@ body {
   border-color: transparent;
   background: transparent;
   box-shadow: none;
+}
+
+/* Auth screen: animated perspective grid background */
+.auth-grid-bg {
+  background-image:
+    linear-gradient(30deg, color-mix(in srgb, var(--jarvis-cyan) 6%, transparent) 12%, transparent 12.5%, transparent 87%, color-mix(in srgb, var(--jarvis-cyan) 6%, transparent) 87.5%, color-mix(in srgb, var(--jarvis-cyan) 6%, transparent)),
+    linear-gradient(150deg, color-mix(in srgb, var(--jarvis-cyan) 6%, transparent) 12%, transparent 12.5%, transparent 87%, color-mix(in srgb, var(--jarvis-cyan) 6%, transparent) 87.5%, color-mix(in srgb, var(--jarvis-cyan) 6%, transparent)),
+    linear-gradient(30deg, color-mix(in srgb, var(--jarvis-cyan) 6%, transparent) 12%, transparent 12.5%, transparent 87%, color-mix(in srgb, var(--jarvis-cyan) 6%, transparent) 87.5%, color-mix(in srgb, var(--jarvis-cyan) 6%, transparent)),
+    linear-gradient(150deg, color-mix(in srgb, var(--jarvis-cyan) 6%, transparent) 12%, transparent 12.5%, transparent 87%, color-mix(in srgb, var(--jarvis-cyan) 6%, transparent) 87.5%, color-mix(in srgb, var(--jarvis-cyan) 6%, transparent)),
+    linear-gradient(60deg, color-mix(in srgb, var(--jarvis-cyan) 4%, transparent) 25%, transparent 25.5%, transparent 75%, color-mix(in srgb, var(--jarvis-cyan) 4%, transparent) 75%, color-mix(in srgb, var(--jarvis-cyan) 4%, transparent)),
+    linear-gradient(60deg, color-mix(in srgb, var(--jarvis-cyan) 4%, transparent) 25%, transparent 25.5%, transparent 75%, color-mix(in srgb, var(--jarvis-cyan) 4%, transparent) 75%, color-mix(in srgb, var(--jarvis-cyan) 4%, transparent));
+  background-size: 44px 76px;
+  background-position: 0 0, 0 0, 22px 38px, 22px 38px, 0 0, 22px 38px;
+  animation: auth-grid-drift 34s linear infinite;
+}
+@keyframes auth-grid-drift {
+  from {
+    background-position: 0 0, 0 0, 22px 38px, 22px 38px, 0 0, 22px 38px;
+  }
+  to {
+    background-position: 44px 76px, 44px 76px, 66px 114px, 66px 114px, 44px 76px, 66px 114px;
+  }
+}
+
+/* Slow-drifting volumetric fog blobs behind the card. */
+.auth-fog {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+.auth-fog::before,
+.auth-fog::after {
+  content: "";
+  position: absolute;
+  width: 60vw;
+  height: 60vw;
+  max-width: 640px;
+  max-height: 640px;
+  border-radius: 9999px;
+  filter: blur(60px);
+  opacity: 0.5;
+}
+.auth-fog::before {
+  top: -10%;
+  left: -10%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--jarvis-cyan) 10%, transparent), transparent 70%);
+  animation: auth-fog-drift-a 46s ease-in-out infinite;
+}
+.auth-fog::after {
+  bottom: -15%;
+  right: -10%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--jarvis-blue) 9%, transparent), transparent 70%);
+  animation: auth-fog-drift-b 54s ease-in-out infinite;
+}
+@keyframes auth-fog-drift-a {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(6vw, 4vh);
+  }
+}
+@keyframes auth-fog-drift-b {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(-5vw, -6vh);
+  }
+}
+
+.flying-heroes-field {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 1;
+}
+.flying-hero {
+  position: absolute;
+  top: 0;
+  left: 0;
+  animation-name: flyer-pass;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  will-change: transform, opacity;
+}
+@keyframes flyer-pass {
+  0% {
+    transform: translate(var(--fx0), var(--fy0)) rotate(var(--frot)) scaleX(var(--fflip));
+    opacity: 0;
+  }
+  10% {
+    opacity: var(--fop);
+  }
+  50% {
+    transform: translate(var(--fxm), var(--fym)) rotate(var(--frot)) scaleX(var(--fflip));
+    opacity: var(--fop);
+  }
+  88% {
+    opacity: var(--fop);
+  }
+  100% {
+    transform: translate(var(--fx1), var(--fy1)) rotate(var(--frot)) scaleX(var(--fflip));
+    opacity: 0;
+  }
+}
+
+/* Rare fast streak across the far background: the visible pass is only a
+   thin slice of a long cycle, so it reads as an occasional cinematic beat
+   rather than a fast-repeating loop. */
+.flying-hero-quick-pass {
+  animation-name: flyer-quick-pass;
+}
+@keyframes flyer-quick-pass {
+  0%,
+  90% {
+    transform: translate(var(--fx0), var(--fy0)) rotate(var(--frot)) scaleX(var(--fflip));
+    opacity: 0;
+  }
+  91% {
+    opacity: var(--fop);
+  }
+  97% {
+    transform: translate(var(--fx1), var(--fy1)) rotate(var(--frot)) scaleX(var(--fflip));
+    opacity: var(--fop);
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Darkens the flyers/reactor layer behind the card so form text stays
+   readable regardless of what's passing through the background. */
+.auth-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 70% 60% at 50% 45%, color-mix(in srgb, var(--jarvis-bg) 35%, transparent), color-mix(in srgb, var(--jarvis-bg) 75%, transparent) 75%),
+    linear-gradient(color-mix(in srgb, var(--jarvis-bg) 25%, transparent), color-mix(in srgb, var(--jarvis-bg) 55%, transparent));
+}
+
+/* Large ambient reactor glow behind the auth card — purely decorative, so
+   it's excluded from layout and pointer events. Scaled down on mobile per
+   the "don't interfere with the form" requirement. */
+.auth-ambient-reactor {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(640px, 140vw);
+  transform: translate(-50%, -50%);
+  opacity: 0.22;
+  filter: blur(1px);
+  pointer-events: none;
+  z-index: 2;
+}
+@media (max-width: 639px) {
+  .auth-ambient-reactor {
+    width: min(420px, 160vw);
+    opacity: 0.16;
+  }
+}
+
+.auth-submit-button {
+  animation: auth-button-pulse 3.2s ease-in-out infinite;
+}
+.auth-submit-button:hover:not(:disabled) {
+  box-shadow: 0 0 22px -6px var(--jarvis-glow);
+}
+.auth-submit-button:disabled {
+  animation: none;
+}
+@keyframes auth-button-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 color-mix(in srgb, var(--jarvis-cyan) 0%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 16px -4px var(--jarvis-glow);
+  }
+}
+
+/* Decorative internal card texture — separate DOM layers rather than
+   ::before/::after, since .hud-panel and .scanline already claim both
+   pseudo-elements on this same node. */
+.auth-card {
+  position: relative;
+  overflow: hidden;
+}
+.auth-card-hex {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.6;
+  background-image:
+    linear-gradient(30deg, color-mix(in srgb, var(--jarvis-cyan) 5%, transparent) 12%, transparent 12.5%, transparent 87%, color-mix(in srgb, var(--jarvis-cyan) 5%, transparent) 87.5%, color-mix(in srgb, var(--jarvis-cyan) 5%, transparent)),
+    linear-gradient(150deg, color-mix(in srgb, var(--jarvis-cyan) 5%, transparent) 12%, transparent 12.5%, transparent 87%, color-mix(in srgb, var(--jarvis-cyan) 5%, transparent) 87.5%, color-mix(in srgb, var(--jarvis-cyan) 5%, transparent)),
+    linear-gradient(30deg, color-mix(in srgb, var(--jarvis-cyan) 5%, transparent) 12%, transparent 12.5%, transparent 87%, color-mix(in srgb, var(--jarvis-cyan) 5%, transparent) 87.5%, color-mix(in srgb, var(--jarvis-cyan) 5%, transparent)),
+    linear-gradient(150deg, color-mix(in srgb, var(--jarvis-cyan) 5%, transparent) 12%, transparent 12.5%, transparent 87%, color-mix(in srgb, var(--jarvis-cyan) 5%, transparent) 87.5%, color-mix(in srgb, var(--jarvis-cyan) 5%, transparent)),
+    linear-gradient(60deg, color-mix(in srgb, var(--jarvis-cyan) 3.5%, transparent) 25%, transparent 25.5%, transparent 75%, color-mix(in srgb, var(--jarvis-cyan) 3.5%, transparent) 75%, color-mix(in srgb, var(--jarvis-cyan) 3.5%, transparent)),
+    linear-gradient(60deg, color-mix(in srgb, var(--jarvis-cyan) 3.5%, transparent) 25%, transparent 25.5%, transparent 75%, color-mix(in srgb, var(--jarvis-cyan) 3.5%, transparent) 75%, color-mix(in srgb, var(--jarvis-cyan) 3.5%, transparent));
+  background-size: 16px 28px;
+  background-position: 0 0, 0 0, 8px 14px, 8px 14px, 0 0, 8px 14px;
+}
+.auth-card-corner {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: 1px solid var(--jarvis-border-strong);
+  pointer-events: none;
+  opacity: 0.85;
+}
+.auth-card-corner-tl {
+  top: 8px;
+  left: 8px;
+  border-right: none;
+  border-bottom: none;
+}
+.auth-card-corner-tr {
+  top: 8px;
+  right: 8px;
+  border-left: none;
+  border-bottom: none;
+}
+.auth-card-corner-bl {
+  bottom: 8px;
+  left: 8px;
+  border-right: none;
+  border-top: none;
+}
+.auth-card-corner-br {
+  bottom: 8px;
+  right: 8px;
+  border-left: none;
+  border-top: none;
+}
+.auth-card-scan {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -5%;
+  height: 2px;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--jarvis-cyan) 60%, transparent), transparent);
+  filter: blur(1px);
+  opacity: 0;
+  animation: auth-card-scan-sweep 7s ease-in-out infinite;
+}
+@keyframes auth-card-scan-sweep {
+  0% {
+    top: -5%;
+    opacity: 0;
+  }
+  8% {
+    opacity: 0.8;
+  }
+  50% {
+    top: 100%;
+    opacity: 0.8;
+  }
+  58% {
+    opacity: 0;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
+}
+
+.hud-input.is-invalid {
+  border-color: var(--jarvis-crit);
+}
+.hud-input.is-invalid:focus {
+  border-color: var(--jarvis-crit);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--jarvis-crit) 22%, transparent);
+}
+
+.auth-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  border: 1px solid color-mix(in srgb, var(--jarvis-crit) 35%, transparent);
+  border-radius: 0.375rem;
+  background: color-mix(in srgb, var(--jarvis-crit) 8%, transparent);
+  padding: 0.625rem 0.75rem;
+}
+
+.auth-checkbox-box {
+  display: flex;
+  height: 1.05rem;
+  width: 1.05rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.25rem;
+  border: 1px solid var(--jarvis-border-strong);
+  background: var(--jarvis-bg-2);
+  color: transparent;
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+}
+.peer:checked ~ .auth-checkbox-box {
+  border-color: var(--jarvis-cyan);
+  background: var(--jarvis-cyan);
+  color: var(--jarvis-bg);
+}
+.peer:focus-visible ~ .auth-checkbox-box {
+  outline: 2px solid var(--jarvis-cyan);
+  outline-offset: 2px;
 }
 
 ::selection {
@@ -166,6 +596,29 @@ body {
  * `utilities` layer unconditionally regardless of source order.
  */
 @layer components {
+  /* Bottom-padding for the scrollable app content, sized to clear the fixed
+     mobile nav (icon+label height + iOS home-indicator safe area) plus a
+     small breathing-room buffer so the last section is never flush against
+     the tab bar. Desktop/tablet don't use the fixed bottom nav, so this
+     resets to 0 there. */
+  .app-main-scroll {
+    padding-bottom: calc(var(--mobile-nav-h) + env(safe-area-inset-bottom, 0px) + 1rem);
+  }
+  @media (min-width: 768px) {
+    .app-main-scroll {
+      padding-bottom: 0;
+    }
+  }
+
+  /* Fixed mobile bottom nav — sits flush with the viewport edge, but adds
+     the safe-area inset as extra padding so icons/labels clear the home
+     indicator on notched iOS devices instead of the safe area eating into
+     the tappable row itself. */
+  .mobile-bottom-nav {
+    min-height: var(--mobile-nav-h);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
   .calendar-command-center {
     width: 100%;
     max-width: 1440px;
@@ -191,7 +644,7 @@ body {
     overflow: hidden;
     border-right: 1px solid var(--jarvis-border);
     border-bottom: 1px solid var(--jarvis-border);
-    background: rgba(2, 11, 18, 0.2);
+    background: color-mix(in srgb, var(--jarvis-bg) 20%, transparent);
     padding: 0.65rem;
     text-align: left;
     transition:
@@ -260,15 +713,15 @@ body {
   .calendar-day-cell:hover {
     z-index: 1;
     border-color: var(--jarvis-border-strong);
-    background: rgba(34, 211, 238, 0.055);
-    box-shadow: inset 0 0 18px rgba(34, 211, 238, 0.04);
+    background: color-mix(in srgb, var(--jarvis-cyan) 5.5%, transparent);
+    box-shadow: inset 0 0 18px color-mix(in srgb, var(--jarvis-cyan) 4%, transparent);
   }
   .calendar-day-cell.is-muted {
     opacity: 0.38;
   }
   .calendar-day-cell.is-selected {
     border-color: var(--jarvis-cyan);
-    background: rgba(34, 211, 238, 0.08);
+    background: color-mix(in srgb, var(--jarvis-cyan) 8%, transparent);
     opacity: 1;
   }
   .calendar-day-cell.is-today .calendar-day-number {
@@ -322,7 +775,7 @@ body {
     text-align: center;
   }
   .calendar-modal-overlay {
-    background: rgba(2, 12, 18, 0.65);
+    background: color-mix(in srgb, var(--jarvis-bg) 65%, transparent);
     backdrop-filter: blur(4px);
   }
   .calendar-create-dialog {
@@ -433,7 +886,7 @@ body {
     opacity: 0.3;
   }
   .jarvis-picker-day.is-today {
-    border-color: rgba(34, 211, 238, 0.4);
+    border-color: color-mix(in srgb, var(--jarvis-cyan) 40%, transparent);
   }
   .jarvis-picker-day.is-selected {
     border-color: var(--jarvis-cyan);
@@ -447,7 +900,7 @@ body {
     flex-direction: column;
     gap: 0.7rem;
     border-left: 1px solid var(--jarvis-border);
-    background: rgba(2, 11, 18, 0.32);
+    background: color-mix(in srgb, var(--jarvis-bg) 32%, transparent);
     padding: 1rem 0.8rem;
   }
   .jarvis-time-control {
@@ -555,7 +1008,7 @@ body {
     margin-top: 0.65rem;
     overflow: hidden;
     border-radius: 999px;
-    background: rgba(34, 211, 238, 0.1);
+    background: color-mix(in srgb, var(--jarvis-cyan) 10%, transparent);
   }
   .tasks-progress-track span {
     display: block;
@@ -590,7 +1043,7 @@ body {
   }
   .tasks-add-mark {
     color: var(--jarvis-cyan);
-    background: rgba(34, 211, 238, 0.08);
+    background: color-mix(in srgb, var(--jarvis-cyan) 8%, transparent);
   }
   .tasks-quick-add .hud-input {
     min-width: 0;
@@ -628,11 +1081,11 @@ body {
   }
   .task-row:hover {
     border-left-color: var(--jarvis-cyan);
-    background: rgba(34, 211, 238, 0.045);
+    background: color-mix(in srgb, var(--jarvis-cyan) 4.5%, transparent);
     transform: translateX(2px);
   }
   .task-row.is-complete {
-    background: rgba(2, 11, 18, 0.22);
+    background: color-mix(in srgb, var(--jarvis-bg) 22%, transparent);
     opacity: 0.62;
   }
   .task-row.is-complete:hover {
@@ -776,7 +1229,7 @@ body {
   }
 
   .sign-out-modal-overlay {
-    background: rgba(0, 8, 14, 0.65);
+    background: color-mix(in srgb, var(--jarvis-bg) 65%, transparent);
     backdrop-filter: blur(4px);
   }
   .sign-out-confirm-dialog {
@@ -788,11 +1241,11 @@ body {
     background-image:
       radial-gradient(
         ellipse at 50% 42%,
-        rgba(34, 211, 238, 0.1),
+        color-mix(in srgb, var(--jarvis-cyan) 10%, transparent),
         transparent 38%
       ),
-      linear-gradient(rgba(34, 211, 238, 0.025) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(34, 211, 238, 0.025) 1px, transparent 1px);
+      linear-gradient(color-mix(in srgb, var(--jarvis-cyan) 2.5%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in srgb, var(--jarvis-cyan) 2.5%, transparent) 1px, transparent 1px);
     background-size:
       auto,
       32px 32px,
@@ -835,11 +1288,11 @@ body {
     place-items: center;
     width: 12rem;
     height: 12rem;
-    border: 1px solid rgba(34, 211, 238, 0.16);
+    border: 1px solid color-mix(in srgb, var(--jarvis-cyan) 16%, transparent);
     border-radius: 50%;
     background: radial-gradient(
       circle,
-      rgba(34, 211, 238, 0.08),
+      color-mix(in srgb, var(--jarvis-cyan) 8%, transparent),
       transparent 62%
     );
     box-shadow: 0 0 42px -28px var(--jarvis-cyan);
@@ -848,7 +1301,7 @@ body {
   .voice-reactor-shell::after {
     content: "";
     position: absolute;
-    border: 1px solid rgba(34, 211, 238, 0.35);
+    border: 1px solid color-mix(in srgb, var(--jarvis-cyan) 35%, transparent);
     border-radius: 50%;
     animation: voice-orbit 12s linear infinite;
   }
@@ -859,8 +1312,8 @@ body {
   }
   .voice-reactor-shell::after {
     inset: 1.5rem;
-    border-color: transparent rgba(34, 211, 238, 0.55) transparent
-      rgba(34, 211, 238, 0.18);
+    border-color: transparent color-mix(in srgb, var(--jarvis-cyan) 55%, transparent) transparent
+      color-mix(in srgb, var(--jarvis-cyan) 18%, transparent);
     animation-duration: 7s;
     animation-direction: reverse;
   }
@@ -877,8 +1330,8 @@ body {
     gap: 0.2rem;
     width: min(100%, 25rem);
     height: 3rem;
-    border-top: 1px solid rgba(34, 211, 238, 0.14);
-    border-bottom: 1px solid rgba(34, 211, 238, 0.14);
+    border-top: 1px solid color-mix(in srgb, var(--jarvis-cyan) 14%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--jarvis-cyan) 14%, transparent);
   }
   .voice-waveform i {
     display: block;
@@ -979,17 +1432,17 @@ body {
     z-index: -1;
     background: radial-gradient(
       ellipse at 50% 0%,
-      rgba(34, 211, 238, 0.09),
+      color-mix(in srgb, var(--jarvis-cyan) 9%, transparent),
       transparent 60%
     );
   }
   .sidebar-profile-card {
-    background: rgba(7, 20, 29, 0.62);
+    background: color-mix(in srgb, var(--jarvis-bg-2) 62%, transparent);
     box-shadow: inset 0 1px rgba(255, 255, 255, 0.035);
     transition: background-color 200ms ease;
   }
   .sidebar-profile-card:hover {
-    background: rgba(7, 20, 29, 0.85);
+    background: color-mix(in srgb, var(--jarvis-bg-2) 85%, transparent);
   }
 
   .brand-reactor {
@@ -998,21 +1451,21 @@ body {
     width: 52px;
     height: 52px;
     flex: 0 0 52px;
-    border: 1px solid rgba(34, 211, 238, 0.22);
+    border: 1px solid color-mix(in srgb, var(--jarvis-cyan) 22%, transparent);
     border-radius: 50%;
     background: radial-gradient(
       circle,
-      rgba(34, 211, 238, 0.1),
+      color-mix(in srgb, var(--jarvis-cyan) 10%, transparent),
       transparent 63%
     );
-    filter: drop-shadow(0 0 8px rgba(34, 211, 238, 0.26));
+    filter: drop-shadow(0 0 8px color-mix(in srgb, var(--jarvis-cyan) 26%, transparent));
   }
   .brand-reactor::before,
   .brand-reactor::after {
     content: "";
     position: absolute;
     inset: 9%;
-    border: 1px solid rgba(125, 241, 255, 0.45);
+    border: 1px solid color-mix(in srgb, var(--jarvis-accent-soft) 45%, transparent);
     border-radius: 50%;
     border-left-color: transparent;
     border-bottom-color: transparent;
@@ -1021,8 +1474,8 @@ body {
   .brand-reactor::after {
     inset: 20%;
     border-width: 2px;
-    border-color: transparent rgba(34, 211, 238, 0.7) transparent
-      rgba(34, 211, 238, 0.24);
+    border-color: transparent color-mix(in srgb, var(--jarvis-cyan) 70%, transparent) transparent
+      color-mix(in srgb, var(--jarvis-cyan) 24%, transparent);
     animation-duration: 4s;
     animation-direction: reverse;
   }
@@ -1035,40 +1488,40 @@ body {
   }
   .brand-reactor-outer {
     inset: 5%;
-    border: 1px dotted rgba(34, 211, 238, 0.5);
+    border: 1px dotted color-mix(in srgb, var(--jarvis-cyan) 50%, transparent);
     border-radius: 50%;
     animation: brand-reactor-spin 8s linear infinite;
   }
   .brand-reactor-inner {
     inset: 28%;
-    border: 1px solid rgba(125, 241, 255, 0.72);
+    border: 1px solid color-mix(in srgb, var(--jarvis-accent-soft) 72%, transparent);
     border-radius: 50%;
     box-shadow:
-      0 0 8px rgba(34, 211, 238, 0.34),
-      inset 0 0 6px rgba(34, 211, 238, 0.3);
+      0 0 8px color-mix(in srgb, var(--jarvis-cyan) 34%, transparent),
+      inset 0 0 6px color-mix(in srgb, var(--jarvis-cyan) 30%, transparent);
     animation: brand-reactor-spin 4s linear infinite reverse;
   }
   .brand-reactor-core {
     inset: 37%;
     border-radius: 50%;
-    background: #bafaff;
+    background: var(--jarvis-accent-softer);
     box-shadow:
       0 0 7px 2px var(--jarvis-cyan),
-      0 0 15px rgba(34, 211, 238, 0.6);
+      0 0 15px color-mix(in srgb, var(--jarvis-cyan) 60%, transparent);
     animation: brand-reactor-pulse 2s ease-in-out infinite;
   }
   .brand-reactor-core::after {
     content: "";
     position: absolute;
     inset: -35%;
-    border: 1px solid rgba(186, 250, 255, 0.5);
+    border: 1px solid color-mix(in srgb, var(--jarvis-accent-softer) 50%, transparent);
     clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
   }
   .brand-reactor-node {
     width: 3px;
     height: 3px;
     border-radius: 50%;
-    background: #bafaff;
+    background: var(--jarvis-accent-softer);
     box-shadow: 0 0 5px var(--jarvis-cyan);
     animation: brand-reactor-node 2.8s ease-in-out infinite;
   }
@@ -1126,6 +1579,7 @@ body {
 
   .settings-dashboard {
     position: relative;
+    isolation: isolate;
     width: 100%;
     max-width: 1180px;
     min-width: 0;
@@ -1133,6 +1587,35 @@ body {
     padding: 0 1rem 2rem;
     box-sizing: border-box;
     overflow-x: hidden;
+    background-image:
+      linear-gradient(30deg, color-mix(in srgb, var(--jarvis-cyan) 4%, transparent) 12%, transparent 12.5%, transparent 87%, color-mix(in srgb, var(--jarvis-cyan) 4%, transparent) 87.5%, color-mix(in srgb, var(--jarvis-cyan) 4%, transparent)),
+      linear-gradient(150deg, color-mix(in srgb, var(--jarvis-cyan) 4%, transparent) 12%, transparent 12.5%, transparent 87%, color-mix(in srgb, var(--jarvis-cyan) 4%, transparent) 87.5%, color-mix(in srgb, var(--jarvis-cyan) 4%, transparent)),
+      linear-gradient(30deg, color-mix(in srgb, var(--jarvis-cyan) 4%, transparent) 12%, transparent 12.5%, transparent 87%, color-mix(in srgb, var(--jarvis-cyan) 4%, transparent) 87.5%, color-mix(in srgb, var(--jarvis-cyan) 4%, transparent)),
+      linear-gradient(150deg, color-mix(in srgb, var(--jarvis-cyan) 4%, transparent) 12%, transparent 12.5%, transparent 87%, color-mix(in srgb, var(--jarvis-cyan) 4%, transparent) 87.5%, color-mix(in srgb, var(--jarvis-cyan) 4%, transparent)),
+      linear-gradient(60deg, color-mix(in srgb, var(--jarvis-cyan) 3%, transparent) 25%, transparent 25.5%, transparent 75%, color-mix(in srgb, var(--jarvis-cyan) 3%, transparent) 75%, color-mix(in srgb, var(--jarvis-cyan) 3%, transparent)),
+      linear-gradient(60deg, color-mix(in srgb, var(--jarvis-cyan) 3%, transparent) 25%, transparent 25.5%, transparent 75%, color-mix(in srgb, var(--jarvis-cyan) 3%, transparent) 75%, color-mix(in srgb, var(--jarvis-cyan) 3%, transparent));
+    background-size: 44px 76px;
+    background-position: 0 0, 0 0, 22px 38px, 22px 38px, 0 0, 22px 38px;
+    background-attachment: fixed;
+  }
+  .settings-dashboard::before {
+    content: "";
+    position: absolute;
+    inset: -2rem -3rem auto;
+    height: 26rem;
+    pointer-events: none;
+    z-index: -1;
+    background:
+      radial-gradient(
+        ellipse at 15% 0%,
+        color-mix(in srgb, var(--jarvis-cyan) 10%, transparent),
+        transparent 42%
+      ),
+      radial-gradient(
+        ellipse at 88% 8%,
+        color-mix(in srgb, var(--jarvis-blue) 7%, transparent),
+        transparent 34%
+      );
   }
   .settings-heading {
     border-bottom: 1px solid var(--jarvis-border);
@@ -1159,25 +1642,26 @@ body {
     max-width: 34rem;
   }
   .settings-profile-fields .hud-input {
-    border-width: 0 0 1px;
-    border-radius: 0;
-    background: transparent;
-    padding-inline: 0;
-    box-shadow: none;
+    border-color: color-mix(in srgb, var(--jarvis-cyan) 22%, transparent);
+    background: color-mix(in srgb, var(--jarvis-bg-2) 55%, transparent);
+    box-shadow: inset 0 1px 12px -6px color-mix(in srgb, var(--jarvis-cyan) 35%, transparent);
+  }
+  .settings-profile-fields .hud-input:hover {
+    border-color: color-mix(in srgb, var(--jarvis-cyan) 40%, transparent);
   }
 
   .jarvis-command-bar {
     position: relative;
     min-height: 4.25rem;
     border-radius: 0.75rem;
-    border-color: rgba(52, 200, 230, 0.25);
+    border-color: color-mix(in srgb, var(--jarvis-accent-hot) 25%, transparent);
     background: linear-gradient(
       90deg,
-      rgba(10, 25, 34, 0.95),
-      rgba(12, 30, 40, 0.9)
+      color-mix(in srgb, var(--jarvis-bg-2) 95%, transparent),
+      color-mix(in srgb, var(--jarvis-elevated) 90%, transparent)
     );
     box-shadow:
-      0 0 20px rgba(0, 200, 230, 0.05),
+      0 0 20px color-mix(in srgb, var(--jarvis-accent-hot) 5%, transparent),
       inset 0 1px rgba(255, 255, 255, 0.02);
     backdrop-filter: blur(10px);
   }
@@ -1191,7 +1675,7 @@ body {
     grid-template-rows: auto auto auto;
     column-gap: 1rem;
     align-items: center;
-    border-bottom: 1px solid rgba(34, 211, 238, 0.12);
+    border-bottom: 1px solid color-mix(in srgb, var(--jarvis-cyan) 12%, transparent);
     padding: 0 0.5rem 0.85rem;
   }
   .inline-voice-header {
@@ -1214,7 +1698,7 @@ body {
     display: grid;
     place-items: center;
     min-height: 8.5rem;
-    border-right: 1px solid rgba(34, 211, 238, 0.1);
+    border-right: 1px solid color-mix(in srgb, var(--jarvis-cyan) 10%, transparent);
   }
   .inline-voice-reactor > div {
     width: 7.5rem;
@@ -1226,8 +1710,8 @@ body {
     gap: 0.18rem;
     width: 100%;
     height: 2.75rem;
-    border-top: 1px solid rgba(34, 211, 238, 0.12);
-    border-bottom: 1px solid rgba(34, 211, 238, 0.12);
+    border-top: 1px solid color-mix(in srgb, var(--jarvis-cyan) 12%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--jarvis-cyan) 12%, transparent);
   }
   .inline-voice-waveform i {
     display: block;
@@ -1296,9 +1780,9 @@ body {
     transform: rotate(180deg);
   }
   .jarvis-command-bar:focus-within {
-    border-color: rgba(52, 200, 230, 0.42);
+    border-color: color-mix(in srgb, var(--jarvis-accent-hot) 42%, transparent);
     box-shadow:
-      0 0 24px rgba(0, 200, 230, 0.08),
+      0 0 24px color-mix(in srgb, var(--jarvis-accent-hot) 8%, transparent),
       inset 0 1px rgba(255, 255, 255, 0.03);
   }
   .jarvis-command-bar:focus-within::before {
@@ -1316,7 +1800,7 @@ body {
     grid-template-rows: auto auto auto;
     column-gap: 1rem;
     align-items: center;
-    border-bottom: 1px solid rgba(34, 211, 238, 0.12);
+    border-bottom: 1px solid color-mix(in srgb, var(--jarvis-cyan) 12%, transparent);
     padding: 0 0.5rem 0.85rem;
   }
   .inline-voice-header {
@@ -1339,7 +1823,7 @@ body {
     display: grid;
     place-items: center;
     min-height: 8.5rem;
-    border-right: 1px solid rgba(34, 211, 238, 0.1);
+    border-right: 1px solid color-mix(in srgb, var(--jarvis-cyan) 10%, transparent);
   }
   .inline-voice-reactor > div {
     width: 7.5rem;
@@ -1351,8 +1835,8 @@ body {
     gap: 0.18rem;
     width: 100%;
     height: 2.75rem;
-    border-top: 1px solid rgba(34, 211, 238, 0.12);
-    border-bottom: 1px solid rgba(34, 211, 238, 0.12);
+    border-top: 1px solid color-mix(in srgb, var(--jarvis-cyan) 12%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--jarvis-cyan) 12%, transparent);
   }
   .inline-voice-waveform i {
     display: block;
@@ -1407,12 +1891,12 @@ body {
     }
   }
   .command-voice-button {
-    background: rgba(34, 211, 238, 0.06);
+    background: color-mix(in srgb, var(--jarvis-cyan) 6%, transparent);
     box-shadow: 0 0 12px -7px var(--jarvis-cyan);
   }
   .command-voice-button:hover {
     border-color: var(--jarvis-cyan) !important;
-    background: rgba(34, 211, 238, 0.12) !important;
+    background: color-mix(in srgb, var(--jarvis-cyan) 12%, transparent) !important;
     box-shadow: 0 0 16px -5px var(--jarvis-cyan);
   }
   .command-input-wrapper {
@@ -1444,7 +1928,7 @@ body {
     background: var(--jarvis-glow);
   }
   .command-send-button {
-    background: rgba(34, 211, 238, 0.08);
+    background: color-mix(in srgb, var(--jarvis-cyan) 8%, transparent);
     box-shadow: 0 0 14px -9px var(--jarvis-cyan);
   }
   .command-send-button:hover:not(:disabled) {
@@ -1486,8 +1970,11 @@ body {
     }
   }
   .settings-profile-fields .hud-input:focus {
-    background: transparent;
-    box-shadow: 0 1px 0 var(--jarvis-cyan);
+    background: color-mix(in srgb, var(--jarvis-bg-2) 70%, transparent);
+    border-color: var(--jarvis-cyan);
+    box-shadow:
+      0 0 0 3px var(--jarvis-glow),
+      inset 0 1px 14px -6px color-mix(in srgb, var(--jarvis-cyan) 55%, transparent);
   }
   .settings-avatar-field {
     border-top: 1px solid var(--jarvis-border);
@@ -1500,13 +1987,23 @@ body {
   .settings-avatar-field > div > div {
     min-width: 0;
   }
-  .settings-avatar-field .group {
-    box-shadow: 0 0 24px -12px var(--jarvis-cyan);
+  .settings-avatar-orb {
+    box-shadow:
+      0 0 32px -10px var(--jarvis-cyan),
+      inset 0 0 20px -8px color-mix(in srgb, var(--jarvis-cyan) 45%, transparent);
+    transition:
+      border-color 200ms ease,
+      box-shadow 200ms ease;
+  }
+  .settings-avatar-orb:hover {
+    box-shadow:
+      0 0 40px -6px var(--jarvis-cyan),
+      inset 0 0 22px -6px color-mix(in srgb, var(--jarvis-cyan) 55%, transparent);
   }
   .settings-save-button,
   .settings-preferences-save {
     min-height: 2.75rem;
-    background: rgba(34, 211, 238, 0.035);
+    background: color-mix(in srgb, var(--jarvis-cyan) 3.5%, transparent);
     box-shadow: 0 0 20px -12px var(--jarvis-cyan);
   }
   .settings-save-button {
@@ -1536,16 +2033,72 @@ body {
   .settings-toggle-row {
     min-height: 3.5rem;
     box-sizing: border-box;
-    border-bottom: 1px solid rgba(34, 211, 238, 0.08);
+    border-bottom: 1px solid color-mix(in srgb, var(--jarvis-cyan) 8%, transparent);
     padding-bottom: 0.65rem;
   }
   .settings-signal-note {
     display: flex;
     flex-direction: column;
-    gap: 0.45rem;
+    gap: 0.5rem;
+    border-radius: 0.5rem;
+    border: 1px solid color-mix(in srgb, var(--jarvis-cyan) 20%, transparent);
     border-left: 2px solid var(--jarvis-cyan);
-    background: rgba(34, 211, 238, 0.035);
-    padding: 0.8rem 0.9rem;
+    background: color-mix(in srgb, var(--jarvis-cyan) 4%, transparent);
+    backdrop-filter: blur(6px);
+    box-shadow: inset 0 1px 16px -10px color-mix(in srgb, var(--jarvis-cyan) 40%, transparent);
+    padding: 0.9rem 1rem;
+  }
+
+  .appearance-protocol-trigger {
+    cursor: pointer;
+  }
+  .appearance-protocol-dot {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 999px;
+    flex-shrink: 0;
+    box-shadow: 0 0 6px -1px currentColor;
+  }
+  .appearance-protocol-menu {
+    position: absolute;
+    z-index: 30;
+    top: calc(100% + 0.4rem);
+    left: 0;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    border: 1px solid var(--jarvis-border-strong);
+    border-radius: 0.375rem;
+    background: color-mix(in srgb, var(--jarvis-bg-2) 92%, transparent);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 12px 32px -12px rgba(0, 0, 0, 0.6);
+    padding: 0.35rem;
+  }
+  .appearance-protocol-option {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 0.55rem;
+    border-radius: 0.25rem;
+    border: 1px solid transparent;
+    padding: 0.5rem 0.6rem;
+    color: var(--jarvis-muted);
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    transition:
+      background-color 120ms ease,
+      border-color 120ms ease,
+      color 120ms ease;
+  }
+  .appearance-protocol-option:hover {
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--jarvis-fg);
+  }
+  .appearance-protocol-option.is-active {
+    border-color: var(--jarvis-border-strong);
+    background: var(--jarvis-glow);
+    color: var(--jarvis-cyan);
   }
   @media (min-width: 768px) {
     .settings-profile-form {
@@ -1554,9 +2107,22 @@ body {
     }
     .settings-avatar-field {
       grid-column: 2;
+      position: relative;
       border-top: 0;
-      border-left: 1px solid var(--jarvis-border);
-      padding: 0 0 0 1.5rem;
+      padding: 0 0 0 1.75rem;
+    }
+    .settings-avatar-field::before {
+      content: "";
+      position: absolute;
+      inset: 0.15rem auto 0.15rem 0;
+      width: 1px;
+      background: linear-gradient(
+        180deg,
+        transparent,
+        var(--jarvis-border-strong) 20%,
+        var(--jarvis-border-strong) 80%,
+        transparent
+      );
     }
     .settings-preferences-form {
       grid-template-columns: 1fr 1fr;
@@ -1578,12 +2144,12 @@ body {
     position: relative;
     isolation: isolate;
     background-image:
-      linear-gradient(30deg, rgba(34, 211, 238, 0.05) 12%, transparent 12.5%, transparent 87%, rgba(34, 211, 238, 0.05) 87.5%, rgba(34, 211, 238, 0.05)),
-      linear-gradient(150deg, rgba(34, 211, 238, 0.05) 12%, transparent 12.5%, transparent 87%, rgba(34, 211, 238, 0.05) 87.5%, rgba(34, 211, 238, 0.05)),
-      linear-gradient(30deg, rgba(34, 211, 238, 0.05) 12%, transparent 12.5%, transparent 87%, rgba(34, 211, 238, 0.05) 87.5%, rgba(34, 211, 238, 0.05)),
-      linear-gradient(150deg, rgba(34, 211, 238, 0.05) 12%, transparent 12.5%, transparent 87%, rgba(34, 211, 238, 0.05) 87.5%, rgba(34, 211, 238, 0.05)),
-      linear-gradient(60deg, rgba(34, 211, 238, 0.035) 25%, transparent 25.5%, transparent 75%, rgba(34, 211, 238, 0.035) 75%, rgba(34, 211, 238, 0.035)),
-      linear-gradient(60deg, rgba(34, 211, 238, 0.035) 25%, transparent 25.5%, transparent 75%, rgba(34, 211, 238, 0.035) 75%, rgba(34, 211, 238, 0.035));
+      linear-gradient(30deg, color-mix(in srgb, var(--jarvis-cyan) 5%, transparent) 12%, transparent 12.5%, transparent 87%, color-mix(in srgb, var(--jarvis-cyan) 5%, transparent) 87.5%, color-mix(in srgb, var(--jarvis-cyan) 5%, transparent)),
+      linear-gradient(150deg, color-mix(in srgb, var(--jarvis-cyan) 5%, transparent) 12%, transparent 12.5%, transparent 87%, color-mix(in srgb, var(--jarvis-cyan) 5%, transparent) 87.5%, color-mix(in srgb, var(--jarvis-cyan) 5%, transparent)),
+      linear-gradient(30deg, color-mix(in srgb, var(--jarvis-cyan) 5%, transparent) 12%, transparent 12.5%, transparent 87%, color-mix(in srgb, var(--jarvis-cyan) 5%, transparent) 87.5%, color-mix(in srgb, var(--jarvis-cyan) 5%, transparent)),
+      linear-gradient(150deg, color-mix(in srgb, var(--jarvis-cyan) 5%, transparent) 12%, transparent 12.5%, transparent 87%, color-mix(in srgb, var(--jarvis-cyan) 5%, transparent) 87.5%, color-mix(in srgb, var(--jarvis-cyan) 5%, transparent)),
+      linear-gradient(60deg, color-mix(in srgb, var(--jarvis-cyan) 3.5%, transparent) 25%, transparent 25.5%, transparent 75%, color-mix(in srgb, var(--jarvis-cyan) 3.5%, transparent) 75%, color-mix(in srgb, var(--jarvis-cyan) 3.5%, transparent)),
+      linear-gradient(60deg, color-mix(in srgb, var(--jarvis-cyan) 3.5%, transparent) 25%, transparent 25.5%, transparent 75%, color-mix(in srgb, var(--jarvis-cyan) 3.5%, transparent) 75%, color-mix(in srgb, var(--jarvis-cyan) 3.5%, transparent));
     background-size: 44px 76px;
     background-position: 0 0, 0 0, 22px 38px, 22px 38px, 0 0, 22px 38px;
     background-attachment: fixed;
@@ -1598,17 +2164,17 @@ body {
     background:
       radial-gradient(
         ellipse at 47% 20%,
-        rgba(34, 211, 238, 0.14),
+        color-mix(in srgb, var(--jarvis-cyan) 14%, transparent),
         transparent 38%
       ),
       radial-gradient(
         ellipse at 86% 6%,
-        rgba(6, 182, 212, 0.09),
+        color-mix(in srgb, var(--jarvis-blue) 9%, transparent),
         transparent 30%
       ),
       radial-gradient(
         ellipse at 10% 40%,
-        rgba(34, 211, 238, 0.05),
+        color-mix(in srgb, var(--jarvis-cyan) 5%, transparent),
         transparent 34%
       );
   }
@@ -1650,7 +2216,7 @@ body {
     padding-bottom: 1.1rem;
   }
   .home-status-badge {
-    background: rgba(7, 20, 29, 0.62);
+    background: color-mix(in srgb, var(--jarvis-bg-2) 62%, transparent);
     box-shadow: inset 0 1px rgba(255, 255, 255, 0.035);
   }
   .home-core-column {
@@ -1662,10 +2228,10 @@ body {
     place-items: center;
     width: min(100%, 35rem);
     min-height: 23rem;
-    border: 1px solid rgba(34, 211, 238, 0.12);
+    border: 1px solid color-mix(in srgb, var(--jarvis-cyan) 12%, transparent);
     background: radial-gradient(
       ellipse at center,
-      rgba(34, 211, 238, 0.055),
+      color-mix(in srgb, var(--jarvis-cyan) 5.5%, transparent),
       transparent 58%
     );
   }
@@ -1725,7 +2291,7 @@ body {
   }
   .home-search {
     border-color: var(--jarvis-border-strong);
-    background: rgba(7, 20, 29, 0.72);
+    background: color-mix(in srgb, var(--jarvis-bg-2) 72%, transparent);
     box-shadow:
       0 12px 35px -24px var(--jarvis-cyan),
       inset 0 1px rgba(255, 255, 255, 0.04);
@@ -1744,16 +2310,16 @@ body {
   }
   .home-action-card:hover {
     border-color: var(--jarvis-border-strong);
-    background: rgba(13, 30, 41, 0.78);
+    background: color-mix(in srgb, var(--jarvis-elevated) 78%, transparent);
     box-shadow: 0 12px 30px -22px var(--jarvis-cyan);
   }
   .home-action-icon {
     border: 1px solid var(--jarvis-border-strong);
     color: var(--jarvis-cyan);
-    background: rgba(34, 211, 238, 0.07);
+    background: color-mix(in srgb, var(--jarvis-cyan) 7%, transparent);
   }
   .home-empty-schedule {
-    border-top: 1px solid rgba(34, 211, 238, 0.06);
+    border-top: 1px solid color-mix(in srgb, var(--jarvis-cyan) 6%, transparent);
   }
   @media (max-width: 640px) {
     .home-core-stage {
@@ -1771,7 +2337,7 @@ body {
     @apply flex items-center gap-3 border-b border-jarvis-border px-2 py-3;
     background: linear-gradient(
       90deg,
-      rgba(34, 211, 238, 0.04),
+      color-mix(in srgb, var(--jarvis-cyan) 4%, transparent),
       transparent 55%
     );
   }
@@ -1780,7 +2346,7 @@ body {
   }
   .reactor-metric {
     @apply flex items-center gap-4 rounded-lg border border-jarvis-border px-5 py-4 transition-colors;
-    background: rgba(8, 24, 33, 0.65);
+    background: color-mix(in srgb, var(--jarvis-panel) 65%, transparent);
   }
   .reactor-metric:hover {
     border-color: var(--jarvis-border-strong);
@@ -1803,7 +2369,7 @@ body {
   }
   .reactor-control-row {
     @apply mt-2 flex items-center justify-between rounded border border-jarvis-border px-3 py-3;
-    background: rgba(2, 11, 18, 0.45);
+    background: color-mix(in srgb, var(--jarvis-bg) 45%, transparent);
   }
   .reactor-button,
   .reactor-button-danger {
@@ -1829,16 +2395,16 @@ body {
     background:
       radial-gradient(
         circle at center,
-        rgba(0, 229, 255, 0.08),
+        color-mix(in srgb, var(--jarvis-accent-hot) 8%, transparent),
         transparent 47%
       ),
-      rgba(2, 11, 18, 0.42);
+      color-mix(in srgb, var(--jarvis-bg) 42%, transparent);
   }
   .arc-reactor {
     position: relative;
     width: min(100%, 430px);
     aspect-ratio: 1;
-    filter: drop-shadow(0 0 18px rgba(0, 229, 255, 0.2));
+    filter: drop-shadow(0 0 18px color-mix(in srgb, var(--jarvis-accent-hot) 20%, transparent));
     isolation: isolate;
     overflow: hidden;
   }
@@ -1867,8 +2433,8 @@ body {
     border-radius: 50%;
     background: radial-gradient(
       circle,
-      rgba(34, 211, 238, 0.2),
-      rgba(6, 182, 212, 0.05) 42%,
+      color-mix(in srgb, var(--jarvis-cyan) 20%, transparent),
+      color-mix(in srgb, var(--jarvis-blue) 5%, transparent) 42%,
       transparent 70%
     );
     filter: blur(10px);
@@ -1883,11 +2449,11 @@ body {
       repeating-radial-gradient(
         circle,
         transparent 0 17px,
-        rgba(34, 211, 238, 0.12) 18px 19px
+        color-mix(in srgb, var(--jarvis-cyan) 12%, transparent) 18px 19px
       ),
       repeating-conic-gradient(
         from 0deg,
-        rgba(34, 211, 238, 0.14) 0 1deg,
+        color-mix(in srgb, var(--jarvis-cyan) 14%, transparent) 0 1deg,
         transparent 1deg 15deg
       );
     mask-image: radial-gradient(circle, transparent 19%, #000 20%);
@@ -1897,37 +2463,37 @@ body {
     position: absolute;
     border-radius: 50%;
     inset: 8%;
-    border: 1px solid rgba(34, 211, 238, 0.35);
+    border: 1px solid color-mix(in srgb, var(--jarvis-cyan) 35%, transparent);
     z-index: 2;
   }
   .arc-ring-outer {
     inset: 2%;
-    border: 1px solid rgba(34, 211, 238, 0.25);
+    border: 1px solid color-mix(in srgb, var(--jarvis-cyan) 25%, transparent);
     animation: reactor-spin 32s linear infinite;
   }
   .arc-ring-dots {
     inset: 10%;
-    border: 2px dotted rgba(34, 211, 238, 0.48);
+    border: 2px dotted color-mix(in srgb, var(--jarvis-cyan) 48%, transparent);
     animation: reactor-spin-reverse 24s linear infinite;
   }
   .arc-ring-technical {
     inset: 6%;
-    border-color: rgba(34, 211, 238, 0.18);
+    border-color: color-mix(in srgb, var(--jarvis-cyan) 18%, transparent);
     border-style: dashed;
     animation: reactor-spin-reverse 38s linear infinite;
   }
   .arc-ring-middle {
     inset: 18%;
     border-width: 5px;
-    border-color: rgba(0, 229, 255, 0.28) transparent rgba(34, 211, 238, 0.6)
+    border-color: color-mix(in srgb, var(--jarvis-accent-hot) 28%, transparent) transparent color-mix(in srgb, var(--jarvis-cyan) 60%, transparent)
       transparent;
     animation: reactor-spin 14s linear infinite;
-    box-shadow: inset 0 0 16px rgba(0, 229, 255, 0.2);
+    box-shadow: inset 0 0 16px color-mix(in srgb, var(--jarvis-accent-hot) 20%, transparent);
   }
   .arc-ring-segments {
     inset: 28%;
     border-width: 13px;
-    border-color: rgba(0, 229, 255, 0.75) transparent rgba(0, 229, 255, 0.4)
+    border-color: color-mix(in srgb, var(--jarvis-accent-hot) 75%, transparent) transparent color-mix(in srgb, var(--jarvis-accent-hot) 40%, transparent)
       transparent;
     animation: reactor-spin-reverse 9s linear infinite;
   }
@@ -1945,8 +2511,8 @@ body {
     inset: 13%;
     border-radius: 50%;
     border: 1px solid transparent;
-    border-top-color: rgba(125, 241, 255, 0.7);
-    border-bottom-color: rgba(34, 211, 238, 0.2);
+    border-top-color: color-mix(in srgb, var(--jarvis-accent-soft) 70%, transparent);
+    border-bottom-color: color-mix(in srgb, var(--jarvis-cyan) 20%, transparent);
     z-index: 3;
     animation: reactor-spin 12s linear infinite;
   }
@@ -1970,8 +2536,8 @@ body {
   }
   .arc-tech-orbit-two {
     inset: 31%;
-    border-top-color: rgba(34, 211, 238, 0.25);
-    border-right-color: rgba(125, 241, 255, 0.65);
+    border-top-color: color-mix(in srgb, var(--jarvis-cyan) 25%, transparent);
+    border-right-color: color-mix(in srgb, var(--jarvis-accent-soft) 65%, transparent);
     animation: reactor-spin-reverse 8s linear infinite;
   }
   .arc-ticks {
@@ -1980,7 +2546,7 @@ body {
     border-radius: 50%;
     background: repeating-conic-gradient(
       from 2deg,
-      rgba(125, 241, 255, 0.65) 0 1deg,
+      color-mix(in srgb, var(--jarvis-accent-soft) 65%, transparent) 0 1deg,
       transparent 1deg 15deg
     );
     mask-image: radial-gradient(
@@ -2008,9 +2574,9 @@ body {
     height: 104%;
     background: linear-gradient(
       transparent,
-      rgba(125, 241, 255, 0.5) 18%,
+      color-mix(in srgb, var(--jarvis-accent-soft) 50%, transparent) 18%,
       transparent 42% 58%,
-      rgba(125, 241, 255, 0.35) 82%,
+      color-mix(in srgb, var(--jarvis-accent-soft) 35%, transparent) 82%,
       transparent
     );
     transform-origin: 50% 50%;
@@ -2030,7 +2596,7 @@ body {
     border-radius: 50%;
     background: repeating-conic-gradient(
       from 0deg,
-      rgba(0, 229, 255, 0.4) 0 1deg,
+      color-mix(in srgb, var(--jarvis-accent-hot) 40%, transparent) 0 1deg,
       transparent 1deg 30deg
     );
     mask-image: radial-gradient(
@@ -2053,7 +2619,7 @@ body {
     inset: 0;
     border: 2px solid transparent;
     border-top-color: var(--jarvis-cyan);
-    border-left-color: rgba(34, 211, 238, 0.25);
+    border-left-color: color-mix(in srgb, var(--jarvis-cyan) 25%, transparent);
     border-radius: 50%;
     opacity: 0.2;
     animation: reactor-arc-cycle 3.2s ease-in-out infinite;
@@ -2095,7 +2661,7 @@ body {
     background: linear-gradient(
       90deg,
       transparent 49.7%,
-      rgba(157, 248, 255, 0.7) 50%,
+      color-mix(in srgb, var(--jarvis-accent-soft) 70%, transparent) 50%,
       transparent 50.3%
     );
     mask-image: radial-gradient(
@@ -2110,7 +2676,7 @@ body {
   .arc-wave {
     position: absolute;
     inset: 39%;
-    border: 1px solid rgba(125, 241, 255, 0.65);
+    border: 1px solid color-mix(in srgb, var(--jarvis-accent-soft) 65%, transparent);
     border-radius: 50%;
     z-index: 3;
     opacity: 0;
@@ -2140,12 +2706,12 @@ body {
     border-radius: 50%;
     background: radial-gradient(
       circle,
-      #d9fbff 0 6%,
-      #20d8ef 22%,
-      #0788a9 50%,
+      var(--jarvis-accent-softer) 0 6%,
+      var(--jarvis-cyan) 22%,
+      var(--jarvis-accent-deep) 50%,
       transparent 72%
     );
-    box-shadow: 0 0 38px 8px rgba(0, 229, 255, 0.55);
+    box-shadow: 0 0 38px 8px color-mix(in srgb, var(--jarvis-accent-hot) 55%, transparent);
     animation: reactor-pulse 2.8s ease-in-out infinite;
   }
   .arc-symbol {
@@ -2153,12 +2719,12 @@ body {
     aspect-ratio: 1;
     position: relative;
     clip-path: polygon(50% 0, 100% 88%, 50% 100%, 0 88%);
-    background: #e9fdff;
-    filter: drop-shadow(0 0 8px #00e5ff);
+    background: var(--jarvis-accent-softer);
+    filter: drop-shadow(0 0 8px var(--jarvis-accent-hot));
   }
   .arc-symbol span {
     position: absolute;
-    background: #068bac;
+    background: var(--jarvis-accent-deep);
   }
   .arc-symbol span:nth-child(1) {
     left: 18%;
@@ -2185,8 +2751,8 @@ body {
     width: 4px;
     height: 4px;
     border-radius: 50%;
-    background: #bdfaff;
-    box-shadow: 0 0 10px #00e5ff;
+    background: var(--jarvis-accent-softer);
+    box-shadow: 0 0 10px var(--jarvis-accent-hot);
   }
   .arc-particle-one {
     left: 12%;
@@ -2211,12 +2777,12 @@ body {
     font-family: var(--font-display);
     letter-spacing: 0.2em;
     color: var(--jarvis-crit);
-    background: rgba(251, 113, 133, 0.08);
+    background: color-mix(in srgb, var(--jarvis-crit) 8%, transparent);
     border-radius: 50%;
   }
   .arc-reactor.critical {
     --jarvis-cyan: var(--jarvis-crit);
-    filter: drop-shadow(0 0 20px rgba(251, 113, 133, 0.35));
+    filter: drop-shadow(0 0 20px color-mix(in srgb, var(--jarvis-crit) 35%, transparent));
   }
   .arc-reactor.shutdown {
     opacity: 0.25;
@@ -2237,7 +2803,7 @@ body {
     border-radius: 50%;
     background: conic-gradient(
       var(--jarvis-cyan) var(--integrity),
-      rgba(34, 211, 238, 0.1) 0
+      color-mix(in srgb, var(--jarvis-cyan) 10%, transparent) 0
     );
     transition: background 0.7s ease;
     box-shadow: 0 0 18px -8px var(--jarvis-cyan);
@@ -2252,7 +2818,7 @@ body {
   }
   .reactor-bar {
     @apply mt-1.5 h-1.5 overflow-hidden rounded-full;
-    background: rgba(34, 211, 238, 0.1);
+    background: color-mix(in srgb, var(--jarvis-cyan) 10%, transparent);
   }
   .reactor-bar span {
     display: block;
@@ -2273,12 +2839,12 @@ body {
       repeating-linear-gradient(
         to bottom,
         transparent 0 24%,
-        rgba(34, 211, 238, 0.08) 25%
+        color-mix(in srgb, var(--jarvis-cyan) 8%, transparent) 25%
       ),
       repeating-linear-gradient(
         to right,
         transparent 0 19%,
-        rgba(34, 211, 238, 0.06) 20%
+        color-mix(in srgb, var(--jarvis-cyan) 6%, transparent) 20%
       );
     border-bottom: 1px solid var(--jarvis-border);
   }
@@ -2445,8 +3011,15 @@ body {
 
   .hud-grid-bg {
     background-image:
-      linear-gradient(rgba(34, 211, 238, 0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(34, 211, 238, 0.05) 1px, transparent 1px);
+      linear-gradient(
+        color-mix(in srgb, var(--jarvis-cyan) 5%, transparent) 1px,
+        transparent 1px
+      ),
+      linear-gradient(
+        90deg,
+        color-mix(in srgb, var(--jarvis-cyan) 5%, transparent) 1px,
+        transparent 1px
+      );
     background-size: 32px 32px;
   }
 
@@ -2454,8 +3027,8 @@ body {
     position: relative;
     background: linear-gradient(
       180deg,
-      rgba(13, 30, 41, 0.7),
-      rgba(7, 20, 29, 0.7)
+      color-mix(in srgb, var(--jarvis-elevated) 70%, transparent),
+      color-mix(in srgb, var(--jarvis-bg-2) 70%, transparent)
     );
     border: 1px solid var(--jarvis-border);
     backdrop-filter: blur(10px);
@@ -2477,7 +3050,7 @@ body {
     background: linear-gradient(
       115deg,
       transparent 0%,
-      rgba(34, 211, 238, 0.04) 45%,
+      color-mix(in srgb, var(--jarvis-cyan) 4%, transparent) 45%,
       transparent 60%
     );
   }
@@ -2493,8 +3066,8 @@ body {
     pointer-events: none;
     background: repeating-linear-gradient(
       to bottom,
-      rgba(34, 211, 238, 0.025) 0px,
-      rgba(34, 211, 238, 0.025) 1px,
+      color-mix(in srgb, var(--jarvis-cyan) 2.5%, transparent) 0px,
+      color-mix(in srgb, var(--jarvis-cyan) 2.5%, transparent) 1px,
       transparent 1px,
       transparent 3px
     );

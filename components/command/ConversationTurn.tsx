@@ -12,6 +12,7 @@ import {
   type SpeechPlaybackState,
 } from "@/services/audio/speech-synthesis";
 import { useDeleteChatMessageMutation } from "@/store/api";
+import { useAssistantIdentity } from "@/hooks/useAssistantIdentity";
 import type { ChatMessage } from "@/lib/types";
 import { MarkdownMessage } from "@/components/command/MarkdownMessage";
 
@@ -29,6 +30,7 @@ export function ConversationTurn({
   const isUser = message.role === "user";
   const [copied, setCopied] = useState(false);
   const [deleteMessage, { isLoading: deleting }] = useDeleteChatMessageMutation();
+  const identity = useAssistantIdentity();
   const playback = useSyncExternalStore(
     (onChange) => subscribeSpeechState(() => onChange()),
     () => {
@@ -67,7 +69,7 @@ export function ConversationTurn({
       className={`flex flex-col gap-1.5 ${isUser ? "items-end text-right" : "items-start text-left"}`}
     >
       <span className="hud-label" style={{ color: isUser ? "var(--jarvis-muted)" : "var(--jarvis-cyan)" }}>
-        {isUser ? "USER COMMAND" : "JARVIS RESPONSE"} · {time}
+        {isUser ? "USER COMMAND" : `${identity} RESPONSE`} · {time}
         {durationMs !== undefined && ` · ${formatDuration(durationMs)}`}
       </span>
       <div

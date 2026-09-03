@@ -14,8 +14,10 @@ import {
   User,
 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useAssistantIdentity } from "@/hooks/useAssistantIdentity";
 import { useGetProfileQuery } from "@/store/api";
 import { resolveAvatarUrl } from "@/lib/avatar";
+import { ASSISTANT_IDENTITIES } from "@/lib/assistantIdentities";
 import { SignOutButton } from "@/components/auth/SignOutButton";
 
 const ITEMS = [
@@ -144,6 +146,10 @@ export function HudNavigation() {
   const { user } = useAuth();
   const { data: profile } = useGetProfileQuery();
   const avatarSrc = resolveAvatarUrl(profile?.avatarUrl);
+  const identity = useAssistantIdentity();
+  const identityTagline =
+    ASSISTANT_IDENTITIES.find((i) => i.value === identity)?.description ??
+    "Personal AI operating system";
 
   return (
     <>
@@ -153,10 +159,10 @@ export function HudNavigation() {
           <MiniArcReactor />
           <div className="flex flex-col">
             <span className="hud-display text-sm font-semibold tracking-[0.3em] text-jarvis-fg">
-              JARVIS
+              {identity}
             </span>
             <span className="hud-label text-[0.55rem] tracking-[0.15em] text-jarvis-cyan/70">
-              PERSONAL AI OS
+              {identityTagline.toUpperCase()}
             </span>
           </div>
         </div>
@@ -211,7 +217,7 @@ export function HudNavigation() {
       </nav>
 
       {/* Mobile — bottom bar, curated subset */}
-      <nav className="hud-panel fixed inset-x-0 bottom-0 z-30 flex items-stretch justify-around md:hidden">
+      <nav className="mobile-bottom-nav hud-panel fixed inset-x-0 bottom-0 z-30 flex items-stretch justify-around md:hidden">
         {MOBILE_ITEMS.map(({ href, label, icon: Icon }) => {
           const active = pathname === href;
           return (

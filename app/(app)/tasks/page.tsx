@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Check, Plus } from "lucide-react";
 import { useCreateTaskMutation, useGetTasksQuery } from "@/store/api";
+import { useAssistantIdentity } from "@/hooks/useAssistantIdentity";
 import { HudPanel } from "@/components/hud/HudPanel";
 import { TaskRow } from "@/components/tasks/TaskRow";
 import type { TaskPriority, TaskStatus } from "@/lib/types";
@@ -14,6 +15,7 @@ const STATUS_FILTERS: { label: string; value: TaskStatus | "all" }[] = [
 ];
 
 export default function TasksPage() {
+  const identity = useAssistantIdentity();
   const [statusFilter, setStatusFilter] = useState<TaskStatus | "all">("all");
   const [title, setTitle] = useState("");
   const [priority, setPriority] = useState<TaskPriority>("medium");
@@ -157,7 +159,7 @@ export default function TasksPage() {
             <span className="tasks-empty-glyph">◈</span>
             <span className="hud-label">NO ACTIVE OBJECTIVES</span>
             <span className="text-xs text-jarvis-muted">
-              JARVIS TASK QUEUE IS CLEAR.
+              {identity} TASK QUEUE IS CLEAR.
             </span>
           </div>
         )}

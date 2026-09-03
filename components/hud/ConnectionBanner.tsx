@@ -29,7 +29,7 @@ export function ConnectionBanner() {
             style={{
               borderColor: "var(--jarvis-warn)",
               color: "var(--jarvis-warn)",
-              background: "rgba(255,176,32,0.08)",
+              background: "color-mix(in srgb, var(--jarvis-warn) 8%, transparent)",
             }}
           >
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-jarvis-warn" />
